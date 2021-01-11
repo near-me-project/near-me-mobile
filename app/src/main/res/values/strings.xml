@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">near me</string>
+    <string name="tab_item_map">map</string>
+    <string name="tab_item_main">main</string>
 </resources>
