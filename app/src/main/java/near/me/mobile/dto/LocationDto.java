@@ -13,6 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LocationDto {
 
+    private String uuid;
     private String clientId;
     private String latitude;
     private String longitude;

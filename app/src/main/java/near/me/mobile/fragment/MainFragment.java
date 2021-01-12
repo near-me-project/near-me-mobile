@@ -19,18 +19,22 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.time.LocalDateTime;
+
 import near.me.mobile.R;
 import near.me.mobile.shared.ViewAnimation;
 import near.me.mobile.task.AddLocationTask;
 
 public class MainFragment extends AbstractTabFragment {
-    private static Context context;
+    private LocalDateTime lastTimeButtonTyped;
+    private Location lastSavedLocation;
+
+    private Context context;
     protected LocationManager locationManager;
     private static final int LAYOUT = R.layout.fragment_main;
     private FloatingActionButton button;
 
     public static MainFragment getInstance(Context context) {
-        MainFragment.context = context;
         Bundle args = new Bundle();
         MainFragment fragment = new MainFragment();
         fragment.setArguments(args);
@@ -73,24 +77,40 @@ public class MainFragment extends AbstractTabFragment {
 
         @Override
         public void onLocationChanged(@NonNull Location location) {
-            new AddLocationTask(button).execute(location);
-            stopLocationUpdates();
+            if (valid(LocalDateTime.now()) && validLocation(location)) {
+                new AddLocationTask(button).execute(location);
+                lastTimeButtonTyped = LocalDateTime.now();
+                lastSavedLocation = location;
+                stopLocationUpdates();
+            }
         }
     };
 
-    private void executeTask(LocationListener locationListener) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
-            return;
+        private boolean validLocation(Location location) {
+            return lastSavedLocation == null || lastSavedLocation.distanceTo(location) > 50.0;
         }
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, locationListener);
-        }
-    }
 
-    private void stopLocationUpdates() {
-        locationManager.removeUpdates(locationListener);
+        private boolean valid(LocalDateTime now) {
+            return lastTimeButtonTyped == null || now.minusSeconds(10).isAfter(lastTimeButtonTyped);
+        }
+
+        private void executeTask(LocationListener locationListener) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+                return;
+            }
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 100, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 100, locationListener);
+            }
+        }
+
+        private void stopLocationUpdates() {
+            locationManager.removeUpdates(locationListener);
+        }
+
+        public void setContext(Context context) {
+            this.context = context;
+        }
     }
-}

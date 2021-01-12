@@ -9,34 +9,71 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.util.List;
 
 import near.me.mobile.R;
 import near.me.mobile.dto.LocationResponseDto;
+import near.me.mobile.task.GetLocationsTask;
 
-public class MapFragment extends AbstractTabFragment {
+public class MapFragment extends AbstractTabFragment implements OnMapReadyCallback {
 
     private static final int LAYOUT = R.layout.fragment_map;
-    private List<LocationResponseDto> data;
+    private Context context;
+    private GoogleMap mMap;
 
-    public static MapFragment getInstance(Context context, List<LocationResponseDto> data) {
+    public static MapFragment getInstance(Context context) {
         Bundle args = new Bundle();
         MapFragment fragment = new MapFragment();
-        fragment.setData(data);
         fragment.setArguments(args);
         fragment.setContext(context);
         fragment.setTitle(context.getString(R.string.tab_item_map));
         return fragment;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        new GetLocationsTask(this).execute();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(LAYOUT, container, false);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
         return view;
     }
 
-    public void setData(List<LocationResponseDto> data) {
-        this.data = data;
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        LatLng berlin = new LatLng(52.51643607501274, 13.378888830535033);
+        mMap.addMarker(new MarkerOptions().position(berlin).title("Marker in Berlin"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(berlin,11));
+    }
+
+    public void refreshMap(List<LocationResponseDto> data) {
+        data.forEach(res -> {
+            LatLng berlin = new LatLng(Double.parseDouble(res.getLatitude()), Double.parseDouble(res.getLongitude()));
+            mMap.addMarker(new MarkerOptions().position(berlin).title("Marker in Berlin"));
+        });
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        new GetLocationsTask(this).execute();
     }
 }

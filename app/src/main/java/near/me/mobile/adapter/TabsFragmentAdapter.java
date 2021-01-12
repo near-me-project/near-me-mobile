@@ -20,7 +20,6 @@ import near.me.mobile.fragment.MapFragment;
 
 public class TabsFragmentAdapter extends FragmentPagerAdapter {
 
-    private List<LocationResponseDto> data;
     private Map<Integer, AbstractTabFragment> tabs;
     private Context context;
     private MapFragment mapFragment;
@@ -50,11 +49,9 @@ public class TabsFragmentAdapter extends FragmentPagerAdapter {
 
     private void initMap(Context context) {
         tabs = new HashMap<>();
-        mapFragment = MapFragment.getInstance(context, data);
-
+        mapFragment = MapFragment.getInstance(context);
         tabs.put(0, MainFragment.getInstance(context));
         tabs.put(1, mapFragment);
     }
-
 }
 

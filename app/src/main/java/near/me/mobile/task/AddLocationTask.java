@@ -10,9 +10,13 @@ import com.google.android.material.snackbar.Snackbar;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import near.me.mobile.shared.Constants;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
 import near.me.mobile.dto.CreatedLocationResponseDto;
 import near.me.mobile.dto.LocationDto;
+import near.me.mobile.shared.Constants;
 
 public class AddLocationTask extends AsyncTask<Location, Void, CreatedLocationResponseDto> {
 
@@ -26,6 +30,7 @@ public class AddLocationTask extends AsyncTask<Location, Void, CreatedLocationRe
     protected CreatedLocationResponseDto doInBackground(Location... location) {
 
         LocationDto build = LocationDto.builder()
+                .uuid(UUID.randomUUID().toString())
                 .clientId("1")
                 .latitude(Double.toString(location[0].getLatitude()))
                 .longitude(Double.toString(location[0].getLongitude()))
@@ -38,7 +43,7 @@ public class AddLocationTask extends AsyncTask<Location, Void, CreatedLocationRe
 
     @Override
     protected void onPostExecute(CreatedLocationResponseDto createdLocationResponseDto) {
-        if (createdLocationResponseDto.getCreatedLocationId() != null) {
+        if (createdLocationResponseDto != null) {
             Snackbar.make(button, "Location sent to service", Snackbar.LENGTH_LONG).show();
         } else {
             Snackbar.make(button, "Location wasn't sent to service", Snackbar.LENGTH_LONG).setBackgroundTint(Color.parseColor("#B00020")).show();
