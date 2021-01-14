@@ -11,9 +11,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -24,6 +26,7 @@ import java.time.LocalDateTime;
 import near.me.mobile.R;
 import near.me.mobile.shared.ViewAnimation;
 import near.me.mobile.task.AddLocationTask;
+import near.me.mobile.task.SendLocationUpdatesToServerTask;
 
 public class MainFragment extends AbstractTabFragment {
     private LocalDateTime lastTimeButtonTyped;
@@ -31,8 +34,10 @@ public class MainFragment extends AbstractTabFragment {
 
     private Context context;
     protected LocationManager locationManager;
+    protected LocationManager locationManagerForSendingUpdates;
     private static final int LAYOUT = R.layout.fragment_main;
     private FloatingActionButton button;
+    private SwitchCompat switchPulse;
 
     public static MainFragment getInstance(Context context) {
         Bundle args = new Bundle();
@@ -47,6 +52,7 @@ public class MainFragment extends AbstractTabFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManagerForSendingUpdates = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         view = inflater.inflate(LAYOUT, container, false);
         return view;
     }
@@ -60,6 +66,35 @@ public class MainFragment extends AbstractTabFragment {
             executeTask(locationListener);
             ViewAnimation.scaleView(view);
         });
+        switchPulse = (SwitchCompat) getView().findViewById(R.id.switchPulse);
+        switchPulse.setOnCheckedChangeListener(onSwitchPulseListener);
+    }
+
+    private final CompoundButton.OnCheckedChangeListener onSwitchPulseListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (isChecked) {
+                executeUpdateServerWithCurrentLocation();
+            } else {
+                stopExecuteUpdateServerWithCurrentLocation();
+            }
+        }
+    };
+
+    private void stopExecuteUpdateServerWithCurrentLocation() {
+        locationManagerForSendingUpdates.removeUpdates(locationListenerForUpdates);
+    }
+
+    private void executeUpdateServerWithCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+            return;
+        }
+        if (locationManagerForSendingUpdates.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5 * 1000, 0, locationListenerForUpdates);
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5 * 1000, 0, locationListenerForUpdates);
+        }
     }
 
     private final LocationListener locationListener = new LocationListener() {
@@ -86,31 +121,50 @@ public class MainFragment extends AbstractTabFragment {
         }
     };
 
-        private boolean validLocation(Location location) {
-            return lastSavedLocation == null || lastSavedLocation.distanceTo(location) > 50.0;
+    private final LocationListener locationListenerForUpdates = new LocationListener() {
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
         }
 
-        private boolean valid(LocalDateTime now) {
-            return lastTimeButtonTyped == null || now.minusSeconds(10).isAfter(lastTimeButtonTyped);
+        @Override
+        public void onProviderEnabled(@NonNull String provider) {
         }
 
-        private void executeTask(LocationListener locationListener) {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
-                return;
-            }
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 100, locationListener);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 100, locationListener);
-            }
+        @Override
+        public void onProviderDisabled(@NonNull String provider) {
         }
 
-        private void stopLocationUpdates() {
-            locationManager.removeUpdates(locationListener);
+        @Override
+        public void onLocationChanged(@NonNull Location location) {
+            new SendLocationUpdatesToServerTask().execute(location);
         }
+    };
 
-        public void setContext(Context context) {
-            this.context = context;
+    private boolean validLocation(Location location) {
+        return lastSavedLocation == null || lastSavedLocation.distanceTo(location) > 50.0;
+    }
+
+    private boolean valid(LocalDateTime now) {
+        return lastTimeButtonTyped == null || now.minusSeconds(10).isAfter(lastTimeButtonTyped);
+    }
+
+    private void executeTask(LocationListener locationListener) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+            return;
+        }
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 100, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 100, locationListener);
         }
     }
+
+    private void stopLocationUpdates() {
+        locationManager.removeUpdates(locationListener);
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+}

@@ -11,6 +11,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchPulse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/SwitchTheme"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:checked="false"
+            android:switchMinWidth="80dp"
+            android:text="pulse"
+            android:textColor="@color/white"
+            android:textOff="OFF"
+            android:textOn="ON" />
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/fab"
@@ -26,6 +40,5 @@
             app:borderWidth="1dp"
             app:fabCustomSize="190dp"
             app:maxImageSize="50dp" />
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>
