@@ -27,14 +27,17 @@ public class MapFragment extends AbstractTabFragment implements OnMapReadyCallba
     private static final int LAYOUT = R.layout.fragment_map;
     private Context context;
     private GoogleMap mMap;
+    private static MapFragment mapFragment;
 
     public static MapFragment getInstance(Context context) {
+        if(mapFragment != null) return mapFragment;
+
         Bundle args = new Bundle();
-        MapFragment fragment = new MapFragment();
-        fragment.setArguments(args);
-        fragment.setContext(context);
-        fragment.setTitle(context.getString(R.string.tab_item_map));
-        return fragment;
+        mapFragment = new MapFragment();
+        mapFragment.setArguments(args);
+        mapFragment.setContext(context);
+        mapFragment.setTitle(context.getString(R.string.tab_item_map));
+        return mapFragment;
     }
 
     @Override

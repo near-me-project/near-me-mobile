@@ -27,6 +27,10 @@ import near.me.mobile.R;
 import near.me.mobile.shared.ViewAnimation;
 import near.me.mobile.task.AddLocationTask;
 import near.me.mobile.task.SendLocationUpdatesToServerTask;
+import near.me.mobile.websocket.EchoWebSocketListener;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
 
 public class MainFragment extends AbstractTabFragment {
     private LocalDateTime lastTimeButtonTyped;
@@ -38,6 +42,9 @@ public class MainFragment extends AbstractTabFragment {
     private static final int LAYOUT = R.layout.fragment_main;
     private FloatingActionButton button;
     private SwitchCompat switchPulse;
+
+    private OkHttpClient client;
+    private WebSocket ws;
 
     public static MainFragment getInstance(Context context) {
         Bundle args = new Bundle();
@@ -53,6 +60,7 @@ public class MainFragment extends AbstractTabFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         locationManagerForSendingUpdates = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        client = new OkHttpClient();
         view = inflater.inflate(LAYOUT, container, false);
         return view;
     }
@@ -73,13 +81,30 @@ public class MainFragment extends AbstractTabFragment {
     private final CompoundButton.OnCheckedChangeListener onSwitchPulseListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
             if (isChecked) {
                 executeUpdateServerWithCurrentLocation();
+                ws = openChanelCommunication();
             } else {
                 stopExecuteUpdateServerWithCurrentLocation();
+                stopChanelCommunication();
             }
         }
     };
+
+    private void stopChanelCommunication() {
+        ws.close(1000, "Goodbye !");
+    }
+
+    private WebSocket openChanelCommunication() {
+//        Request request = new Request.Builder().url("ws://10.0.2.2:8585/affirm?client=1").build();
+        Request request = new Request.Builder().url("ws://192.168.0.219:9191/v1/subscribe/1").build();
+        EchoWebSocketListener listener = new EchoWebSocketListener(context);
+        ws = client.newWebSocket(request, listener);
+
+//        client.dispatcher().executorService().shutdown();
+        return ws;
+    }
 
     private void stopExecuteUpdateServerWithCurrentLocation() {
         locationManagerForSendingUpdates.removeUpdates(locationListenerForUpdates);
@@ -92,8 +117,8 @@ public class MainFragment extends AbstractTabFragment {
             return;
         }
         if (locationManagerForSendingUpdates.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5 * 1000, 0, locationListenerForUpdates);
-            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5 * 1000, 0, locationListenerForUpdates);
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.GPS_PROVIDER, 15 * 1000, 0, locationListenerForUpdates);
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15 * 1000, 0, locationListenerForUpdates);
         }
     }
 

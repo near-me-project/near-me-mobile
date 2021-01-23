@@ -49,4 +49,5 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation "com.android.support:support-compat:30.0.0"
 }
