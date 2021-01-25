@@ -21,12 +21,12 @@ import near.me.mobile.shared.RestClient;
 
 import static near.me.mobile.shared.Constants.TEST_CLIENT_ID;
 
-public class AddLocationTask extends AsyncTask<Location, Void, CreatedLocationResponseDto> {
+public class SendCurrentLocationToServerAsyncTask extends AsyncTask<Location, Void, CreatedLocationResponseDto> {
 
     private FloatingActionButton button;
     private RestClient restClient;
 
-    public AddLocationTask(FloatingActionButton button) {
+    public SendCurrentLocationToServerAsyncTask(FloatingActionButton button) {
         this.button = button;
         restClient = new RestClient();
     }

@@ -31,4 +31,8 @@ public class GetLocationsTask extends AsyncTask<Void, Void, List<LocationRespons
         return Stream.of(responseEntity.getBody()).collect(Collectors.toList());
     }
 
+    @Override
+    protected void onPostExecute(List<LocationResponseDto> locationResponseDtos) {
+        mapFragment.refreshMap(locationResponseDtos);
+    }
 }
