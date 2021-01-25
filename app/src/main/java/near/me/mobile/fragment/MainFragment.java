@@ -117,8 +117,8 @@ public class MainFragment extends AbstractTabFragment {
             return;
         }
         if (locationManagerForSendingUpdates.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.GPS_PROVIDER, 15 * 1000, 0, locationListenerForUpdates);
-            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15 * 1000, 0, locationListenerForUpdates);
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.GPS_PROVIDER, 15 * 1000, 50, locationListenerForUpdates);
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15 * 1000, 50, locationListenerForUpdates);
         }
     }
 

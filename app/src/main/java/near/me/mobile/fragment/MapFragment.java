@@ -75,8 +75,8 @@ public class MapFragment extends AbstractTabFragment implements OnMapReadyCallba
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onResume() {
+        super.onResume();
         new GetLocationsTask(this).execute();
     }
 }
