@@ -58,16 +58,10 @@ public class MapFragment extends AbstractTabFragment implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
         LatLng berlin = new LatLng(52.51643607501274, 13.378888830535033);
         mMap.addMarker(new MarkerOptions().position(berlin).title("Marker in Berlin"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(berlin,11));
-    }
-
-    public void refreshMap(List<LocationResponseDto> data) {
-        data.forEach(res -> {
-            LatLng berlin = new LatLng(Double.parseDouble(res.getLatitude()), Double.parseDouble(res.getLongitude()));
-            mMap.addMarker(new MarkerOptions().position(berlin).title("Marker in Berlin"));
-        });
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(berlin,15.0f));
     }
 
     public void setContext(Context context) {

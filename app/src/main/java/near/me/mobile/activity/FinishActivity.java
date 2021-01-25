@@ -10,6 +10,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -45,9 +46,9 @@ public class FinishActivity extends AppCompatActivity implements OnMapReadyCallb
         LocationsModel locationsModel = getLocationsModel(data);
 
         for (Location location : locationsModel.getNearestPlaces()) {
-            LatLng berlin = new LatLng(Double.parseDouble(location.getLatitude()), Double.parseDouble(location.getLongitude()));
-            mMap.addMarker(new MarkerOptions().position(berlin).title("Near you"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(berlin, 12));
+            LatLng place = new LatLng(Double.parseDouble(location.getLatitude()), Double.parseDouble(location.getLongitude()));
+            mMap.addMarker(new MarkerOptions().position(place).title("Near you").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 17.0f));
         }
 
     }

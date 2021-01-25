@@ -17,13 +17,18 @@ import java.util.UUID;
 import near.me.mobile.dto.CreatedLocationResponseDto;
 import near.me.mobile.dto.LocationDto;
 import near.me.mobile.shared.Constants;
+import near.me.mobile.shared.RestClient;
+
+import static near.me.mobile.shared.Constants.TEST_CLIENT_ID;
 
 public class AddLocationTask extends AsyncTask<Location, Void, CreatedLocationResponseDto> {
 
     private FloatingActionButton button;
+    private RestClient restClient;
 
     public AddLocationTask(FloatingActionButton button) {
         this.button = button;
+        restClient = new RestClient();
     }
 
     @Override
@@ -31,14 +36,12 @@ public class AddLocationTask extends AsyncTask<Location, Void, CreatedLocationRe
 
         LocationDto build = LocationDto.builder()
                 .uuid(UUID.randomUUID().toString())
-                .clientId("1")
+                .clientId(TEST_CLIENT_ID)
                 .latitude(Double.toString(location[0].getLatitude()))
                 .longitude(Double.toString(location[0].getLongitude()))
                 .build();
 
-        RestTemplate template = new RestTemplate();
-        template.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-        return template.postForObject(Constants.URL.POST_ADD_LOCATION, build, CreatedLocationResponseDto.class);
+        return restClient.postForObject(Constants.URL.POST_ADD_LOCATION, build, CreatedLocationResponseDto.class);
     }
 
     @Override

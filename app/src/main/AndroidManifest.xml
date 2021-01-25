@@ -28,6 +28,6 @@
 
         <activity android:name=".activity.FinishActivity"/>
 
+        <service android:name=".service.LocationService" android:exported="false"/>
     </application>
-
 </manifest>

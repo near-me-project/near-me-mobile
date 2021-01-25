@@ -8,5 +8,7 @@ public class Constants {
         public static final String POST_ADD_LOCATION = HOST + "locations/fast";
         public static final String GET_UPDATES = "http://192.168.0.219:9000/locations";
     }
+
+    public static final String TEST_CLIENT_ID = "1";
 }
 

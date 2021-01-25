@@ -3,6 +3,7 @@ package near.me.mobile.fragment;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -26,7 +27,7 @@ import java.time.LocalDateTime;
 import near.me.mobile.R;
 import near.me.mobile.shared.ViewAnimation;
 import near.me.mobile.task.AddLocationTask;
-import near.me.mobile.task.SendLocationUpdatesToServerTask;
+import near.me.mobile.service.LocationService;
 import near.me.mobile.websocket.EchoWebSocketListener;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -99,11 +100,7 @@ public class MainFragment extends AbstractTabFragment {
     private WebSocket openChanelCommunication() {
 //        Request request = new Request.Builder().url("ws://10.0.2.2:8585/affirm?client=1").build();
         Request request = new Request.Builder().url("ws://192.168.0.219:9191/v1/subscribe/1").build();
-        EchoWebSocketListener listener = new EchoWebSocketListener(context);
-        ws = client.newWebSocket(request, listener);
-
-//        client.dispatcher().executorService().shutdown();
-        return ws;
+        return client.newWebSocket(request, new EchoWebSocketListener(context));
     }
 
     private void stopExecuteUpdateServerWithCurrentLocation() {
@@ -117,8 +114,8 @@ public class MainFragment extends AbstractTabFragment {
             return;
         }
         if (locationManagerForSendingUpdates.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.GPS_PROVIDER, 15 * 1000, 50, locationListenerForUpdates);
-            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15 * 1000, 50, locationListenerForUpdates);
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.GPS_PROVIDER, 15 * 1000, 0, locationListenerForUpdates);
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15 * 1000, 0, locationListenerForUpdates);
         }
     }
 
@@ -161,7 +158,10 @@ public class MainFragment extends AbstractTabFragment {
 
         @Override
         public void onLocationChanged(@NonNull Location location) {
-            new SendLocationUpdatesToServerTask().execute(location);
+            Intent intent = new Intent(context, LocationService.class);
+            intent.putExtra("latitude", String.valueOf(location.getLatitude()));
+            intent.putExtra("longitude", String.valueOf(location.getLongitude()));
+            context.startService(intent);
         }
     };
 

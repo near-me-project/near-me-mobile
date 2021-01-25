@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 
 import near.me.mobile.R;
 import near.me.mobile.activity.FinishActivity;
+import near.me.mobile.fragment.MapFragment;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
@@ -57,7 +58,7 @@ public class EchoWebSocketListener extends WebSocketListener {
                 .setTicker("near me")
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(true)
-                .setContentTitle("beer bar location found")
+                .setContentTitle("some locations were found near you")
                 .setContentText("click to see details");
 
         Notification notification = builder.build();
