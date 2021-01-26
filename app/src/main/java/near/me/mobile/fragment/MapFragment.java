@@ -21,7 +21,7 @@ import java.util.List;
 
 import near.me.mobile.R;
 import near.me.mobile.dto.LocationResponseDto;
-import near.me.mobile.model.Location;
+import near.me.mobile.shared.CurrentUserLocation;
 import near.me.mobile.task.GetLocationsTask;
 
 public class MapFragment extends AbstractTabFragment implements OnMapReadyCallback {
@@ -31,7 +31,7 @@ public class MapFragment extends AbstractTabFragment implements OnMapReadyCallba
     private static MapFragment mapFragment;
 
     public static MapFragment getInstance(Context context) {
-        if(mapFragment != null) return mapFragment;
+        if (mapFragment != null) return mapFragment;
 
         mapFragment = new MapFragment();
         mapFragment.setArguments(new Bundle());
@@ -58,18 +58,28 @@ public class MapFragment extends AbstractTabFragment implements OnMapReadyCallba
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        LatLng berlin = new LatLng(52.51643607501274, 13.378888830535033);
-        mMap.addMarker(new MarkerOptions().position(berlin).title("Marker in Berlin"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(berlin,15.0f));
-
+        if (CurrentUserLocation.instance().getUpdated()) {
+            LatLng place = new LatLng(CurrentUserLocation.instance().getLatitude(), CurrentUserLocation.instance().getLongitude());
+            mMap.addMarker(new MarkerOptions().position(place).title("You").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 17.0f));
+        } else {
+            LatLng berlin = new LatLng(52.51643607501274, 13.378888830535033);
+            mMap.addMarker(new MarkerOptions().position(berlin).title("Marker in Berlin"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(berlin, 15.0f));
+        }
     }
 
     public void refreshMap(List<LocationResponseDto> locationResponseDtos) {
+        mMap.clear();
+
         for (LocationResponseDto location : locationResponseDtos) {
             LatLng place = new LatLng(Double.parseDouble(location.getLatitude()), Double.parseDouble(location.getLongitude()));
             mMap.addMarker(new MarkerOptions().position(place).title("Near you").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 17.0f));
         }
+
+        LatLng place = new LatLng(CurrentUserLocation.instance().getLatitude(), CurrentUserLocation.instance().getLongitude());
+        mMap.addMarker(new MarkerOptions().position(place).title("You").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 17.0f));
     }
 
     @Override

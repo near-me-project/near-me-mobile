@@ -19,6 +19,7 @@ import java.io.IOException;
 import near.me.mobile.R;
 import near.me.mobile.model.Location;
 import near.me.mobile.model.LocationsModel;
+import near.me.mobile.shared.CurrentUserLocation;
 
 public class FinishActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -48,9 +49,11 @@ public class FinishActivity extends AppCompatActivity implements OnMapReadyCallb
         for (Location location : locationsModel.getNearestPlaces()) {
             LatLng place = new LatLng(Double.parseDouble(location.getLatitude()), Double.parseDouble(location.getLongitude()));
             mMap.addMarker(new MarkerOptions().position(place).title("Near you").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 17.0f));
         }
 
+        LatLng place = new LatLng(CurrentUserLocation.instance().getLatitude(), CurrentUserLocation.instance().getLongitude());
+        mMap.addMarker(new MarkerOptions().position(place).title("You").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 17.0f));
     }
 
     private LocationsModel getLocationsModel(String data) {

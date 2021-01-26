@@ -52,12 +52,12 @@ public class PulseListener implements CompoundButton.OnCheckedChangeListener {
             return;
         }
         if (locationManagerForSendingUpdates.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManagerForSendingUpdates.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1 * 1000, 0, locationListenerForUpdates);
-            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1 * 1000, 0, locationListenerForUpdates);
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.GPS_PROVIDER, 15 * 1000, 0, locationListenerForUpdates);
+            locationManagerForSendingUpdates.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 15 * 1000, 0, locationListenerForUpdates);
         }
     }
 
-    private void stopChanelCommunication() {
+    public void stopChanelCommunication() {
         ws.close(1000, "Goodbye !");
     }
 

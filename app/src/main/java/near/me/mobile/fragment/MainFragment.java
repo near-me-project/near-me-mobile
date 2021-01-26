@@ -15,7 +15,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import near.me.mobile.R;
 import near.me.mobile.listeners.PulseListener;
-import near.me.mobile.listeners.SendingCurrentLocationListenerImpl;
 import near.me.mobile.shared.ViewAnimation;
 import near.me.mobile.task.SendCurrentLocationToServerAsyncTask;
 import near.me.mobile.task.SendingCurrentLocation;
@@ -23,6 +22,8 @@ import near.me.mobile.task.SendingCurrentLocation;
 public class MainFragment extends AbstractTabFragment {
     private Context context;
     private FloatingActionButton floatingActionButton;
+    private SwitchCompat switchPulse;
+    private PulseListener pulseListener;
 
     public static MainFragment getInstance(Context context) {
 
@@ -40,19 +41,43 @@ public class MainFragment extends AbstractTabFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        System.out.println("[MainFragment] Created");
+        pulseListener = new PulseListener(context);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
+        System.out.println("[MainFragment] Started");
         floatingActionButton = (FloatingActionButton) getView().findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(view -> {
             Snackbar.make(floatingActionButton, "sending location ...", Snackbar.LENGTH_LONG).show();
-            new SendingCurrentLocation(context).executeTaskWithListener(new SendingCurrentLocationListenerImpl(context, new SendCurrentLocationToServerAsyncTask(floatingActionButton)));
+            new SendingCurrentLocation(context, new SendCurrentLocationToServerAsyncTask(floatingActionButton)).executeTask();
             ViewAnimation.scaleView(view);
         });
-        SwitchCompat switchPulse = (SwitchCompat) getView().findViewById(R.id.switchPulse);
-        switchPulse.setOnCheckedChangeListener(new PulseListener(context));
+        switchPulse = (SwitchCompat) getView().findViewById(R.id.switchPulse);
+        switchPulse.setOnCheckedChangeListener(pulseListener);
+
     }
 
     public void setContext(Context context) {
         this.context = context;
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        System.out.println("[MainFragment]: Stopped");
+//        pulseListener.stopChanelCommunication();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("[MainFragment]: Destroyed");
+        pulseListener.stopChanelCommunication();
     }
 }
