@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 
 import near.me.mobile.R;
-import near.me.mobile.activity.FinishActivity;
+import near.me.mobile.activity.NotificationActivity;
 
 public class LocationFoundPushNotification {
     private final NotificationManager notificationManager;
@@ -27,7 +27,7 @@ public class LocationFoundPushNotification {
 
         Notification.Builder builder = new Notification.Builder(context.getApplicationContext());
 
-        Intent intent = new Intent(context.getApplicationContext(), FinishActivity.class);
+        Intent intent = new Intent(context.getApplicationContext(), NotificationActivity.class);
         intent.putExtra("data", text);
         PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 

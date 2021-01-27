@@ -7,11 +7,6 @@ import android.os.AsyncTask;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 import near.me.mobile.dto.CreatedLocationResponseDto;
@@ -41,7 +36,7 @@ public class SendCurrentLocationToServerAsyncTask extends AsyncTask<Location, Vo
                 .longitude(Double.toString(location[0].getLongitude()))
                 .build();
 
-        return restClient.postForObject(Constants.URL.POST_ADD_LOCATION, build, CreatedLocationResponseDto.class);
+        return restClient.postForObject(Constants.URL.LOOKUP_ADD_LOCATION, build, CreatedLocationResponseDto.class);
     }
 
     @Override

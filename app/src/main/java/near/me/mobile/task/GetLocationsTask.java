@@ -27,7 +27,7 @@ public class GetLocationsTask extends AsyncTask<Void, Void, List<LocationRespons
 
     @Override
     protected List<LocationResponseDto> doInBackground(Void... voids) {
-        ResponseEntity<LocationResponseDto[]> responseEntity = restClient.getForEntity(Constants.URL.GET_LOCATIONS + TEST_CLIENT_ID, LocationResponseDto[].class);
+        ResponseEntity<LocationResponseDto[]> responseEntity = restClient.getForEntity(Constants.URL.LOOKUP_GET_LOCATIONS + TEST_CLIENT_ID, LocationResponseDto[].class);
         return Stream.of(responseEntity.getBody()).collect(Collectors.toList());
     }
 

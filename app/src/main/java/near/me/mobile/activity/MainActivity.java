@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initTabs();
-        detectCurrentUserLocation();
+        new CurrentLocationDetector(getApplicationContext()).detect();
     }
 
     private void initTabs() {
@@ -42,26 +42,18 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
     }
-
-    private void detectCurrentUserLocation() {
-        new F(getApplicationContext()).f();
-    }
 }
 
-class F {
+class CurrentLocationDetector {
     private Context context;
     private LocationManager locationManager;
 
-    public F(Context context) {
+    public CurrentLocationDetector(Context context) {
         this.context = context;
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
 
-    public void f() {
-        executeTaskWithListener();
-    }
-
-    public void executeTaskWithListener() {
+    public void detect() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
@@ -72,6 +64,7 @@ class F {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
         }
     }
+
 
     private final LocationListener locationListener = new LocationListener() {
         @Override
@@ -92,6 +85,7 @@ class F {
             instance.setLatitude(location.getLatitude());
             instance.setLongitude(location.getLongitude());
             instance.setUpdated(true);
+            locationManager.removeUpdates(locationListener);
         }
     };
 

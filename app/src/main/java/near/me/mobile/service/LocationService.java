@@ -24,7 +24,7 @@ public class LocationService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         System.out.println("[LocationService]:  service start working");
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(Constants.URL.GET_UPDATES)
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(Constants.URL.CONSUMER_SEND_UPDATES)
                 .queryParam("clientId", TEST_CLIENT_ID)
                 .queryParam("latitude", intent.getStringExtra("latitude"))
                 .queryParam("longitude", intent.getStringExtra("longitude"));

@@ -12,25 +12,31 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
 
 import near.me.mobile.R;
+import near.me.mobile.listeners.map.OnMarkerClickListener;
 import near.me.mobile.model.Location;
 import near.me.mobile.model.LocationsModel;
 import near.me.mobile.shared.CurrentUserLocation;
+import near.me.mobile.shared.MarkerTag;
 
-public class FinishActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class NotificationActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    private GoogleMap map;
+    private FloatingActionButton floatingActionButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.finish_layout);
+        setContentView(R.layout.notification_layout);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        floatingActionButton = (FloatingActionButton) findViewById(R.id.fab_map);
     }
 
 
@@ -41,19 +47,22 @@ public class FinishActivity extends AppCompatActivity implements OnMapReadyCallb
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        map = googleMap;
 
         String data = getIntent().getStringExtra("data");
         LocationsModel locationsModel = getLocationsModel(data);
 
         for (Location location : locationsModel.getNearestPlaces()) {
             LatLng place = new LatLng(Double.parseDouble(location.getLatitude()), Double.parseDouble(location.getLongitude()));
-            mMap.addMarker(new MarkerOptions().position(place).title("Near you").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            Marker marker = map.addMarker(new MarkerOptions().position(place).title("Near you").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            marker.setTag(new MarkerTag("id", location.getLocationId()));
         }
 
         LatLng place = new LatLng(CurrentUserLocation.instance().getLatitude(), CurrentUserLocation.instance().getLongitude());
-        mMap.addMarker(new MarkerOptions().position(place).title("You").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 17.0f));
+        map.addMarker(new MarkerOptions().position(place).title("You").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 17.0f));
+
+        map.setOnMarkerClickListener(new OnMarkerClickListener(getApplicationContext(), floatingActionButton));
     }
 
     private LocationsModel getLocationsModel(String data) {
@@ -64,3 +73,5 @@ public class FinishActivity extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 }
+
+
